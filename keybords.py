@@ -41,3 +41,4 @@ submit_discard_btn = [[
 ]]
 
 submit_discard_btn_markup = InlineKeyboardMarkup(submit_discard_btn)
+

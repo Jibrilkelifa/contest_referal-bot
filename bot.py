@@ -17,11 +17,11 @@ console_logger = logging.StreamHandler()
 console_logger.setFormatter(log_format)
 console_logger.setLevel(logging.INFO)
 logger.addHandler(console_logger)
-
+from campaign import update_status_campaign
 from admin import new_contest_conv_handler, admin_command_handler, campaign_btn_handler
 from start import start_command_handler
 from participants import participant_registration_conv_handler, participant_main_menu_handler
-from invitation import check_callback_query_handler,members_membership_status_handler
+from invitation import check_callback_query_handler, members_membership_status_handler
 
 
 def error_handler(update, context):
@@ -36,6 +36,9 @@ def main() -> None:
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
+    #scheduler
+    dispatcher.job_queue.run_repeating(callback=update_status_campaign,
+                                       interval=10)
     # bot handlers
     dispatcher.add_handler(start_command_handler)
     dispatcher.add_handler(new_contest_conv_handler)

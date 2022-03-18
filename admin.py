@@ -115,7 +115,7 @@ def submit(update, context):
     query = update.callback_query
     contest = context.user_data['new_contest']
     del context.user_data['new_contest']
-    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉Session:{contest['start_date_time']} -- {contest['end_date_time']}"
+    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉StartTime:{contest['start_date_time']}\n👉EndTime:{contest['end_date_time']}"
     store_contest(contest)
     context.bot.edit_message_text(
         chat_id=update.effective_user.id,
@@ -128,7 +128,7 @@ def discard(update, context):
     query = update.callback_query
     contest = context.user_data['new_contest']
     del context.user_data['new_contest']
-    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉Session:{contest['start_date_time']} -- {contest['end_date_time']}"
+    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉StartTime:{contest['start_date_time']}\n👉EndTime:{contest['end_date_time']}"
     context.bot.edit_message_text(
         chat_id=update.effective_user.id,
         message_id=query.message.message_id,
@@ -138,7 +138,7 @@ def discard(update, context):
 
 def check_out_campaign(update, context):
     contest = context.user_data['new_contest']
-    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉Session:{contest['start_date_time']} -- {contest['end_date_time']}"
+    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉StartTime:{contest['start_date_time']}\n👉EndTime:{contest['end_date_time']}"
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=contest_detail,
                              parse_mode=telegram.constants.PARSEMODE_HTML,
@@ -159,7 +159,7 @@ def cancel(update, context):
 
 def date_time_format():
     #now in  CET timezone utc+1
-    now = datetime.datetime.now(pytz.timezone('CET'))
+    now = datetime.datetime.now(pytz.timezone(config.TIMIZONE))
     return now.strftime(config.DATETIME_FORMAT)
 
 

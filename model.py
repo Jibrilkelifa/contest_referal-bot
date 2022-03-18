@@ -1,9 +1,16 @@
 from typing import Dict
 from db import contests, participants, invitations
+from constants import NOT_STARTED_YET
 
 
 def store_contest(contest):
+    contest['status'] = NOT_STARTED_YET
     return contests.insert(contest)
+
+
+def update_contest(id, value):
+    data = dict(id=id, status=value)
+    return contests.update(data, ['id'])
 
 
 def get_contest():
@@ -38,3 +45,11 @@ def get_number_invitation(ref_user_id):
 
 def delete_invitation(inv_user_id):
     return invitations.delete(inv_user_id=inv_user_id)
+
+
+def get_total_participant():
+    return len(participants)
+
+
+def get_total_invitation():
+    return len(invitations)

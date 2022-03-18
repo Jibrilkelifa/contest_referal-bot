@@ -7,7 +7,7 @@ def bot_owner_only(func):
     @wraps(func)
     def wrapper(update, context, *args, **kwargs):
         chat_id = update.effective_user.id
-        if (str(chat_id) in config.BOT_OWNERS):
+        if (int(chat_id) in config.BOT_OWNERS):
             func(update, context, *args, **kwargs)
         else:
             update.message.reply_text(
