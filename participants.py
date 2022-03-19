@@ -120,7 +120,7 @@ def main_menu(update, context):
 
 
 def home(update, context):
-    text = f"Hi {update.effective_user.full_name}!"
+    text = f"Hello {update.effective_user.full_name}!👋"
     if (get_participant(update.effective_user.id)):
         rank = get_rank(update.effective_user.id)
         text = f"{text}\n\n{rank}"
@@ -149,7 +149,7 @@ def share(update, context):
     url = get_share_link(context, participant)
     share_reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton('👋 Share Link', url=url)]])
-    text = f"Share bot with your Friends and win {campaign['reward']}\n\n👋 Total referrals: {number_successfull_invitations}\n\n<b>Note</b>\nFake,empty or spam users are deleted after checking\n\nYour referral link ⤵️"
+    text = f"Play your part in growing the community and win {campaign['reward']} 👈\n\n\n🗃<b>Total Referral Points:</b> {number_successfull_invitations}\n\n\n⚠️Participating with fake, empty and spam accounts or any other type of bot-like action will result in permanent ban from the community!\n\n\nYour unique referral link ⤵️"
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=text,
                              reply_markup=share_reply_markup,

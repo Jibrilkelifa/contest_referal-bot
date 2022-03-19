@@ -94,4 +94,4 @@ def get_rank(participant_id):
         l.append(tu)
     l.sort(reverse=True, key=lambda x: x[1])
     result = [l.index(i) + 1 for i in l if i[0] == participant_id][0]
-    return f"🎖️you are ranked {result}th out of {total_participant}"
+    return f"📊You rank {result}th out of {total_participant} participant(s)"

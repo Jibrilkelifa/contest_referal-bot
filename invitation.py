@@ -1,4 +1,3 @@
-import imp
 from telegram import ReplyKeyboardMarkup
 from model import get_invitation, store_invitation, update_invitation, delete_invitation
 import config
@@ -46,7 +45,7 @@ def create_invitation(update, context):
         store_invitation(invitation)
         #second send the channel/group to Join
         channel_group = context.bot.get_chat(config.CHANNEL_GROUP_CHAT_ID)
-        text = f"⚠️ You must join our {channel_group.type}\n\n @{channel_group.username}"
+        text = f"👉 Join our group and ✅Check yourself in to have the opportunity of participating in our regular referral contests and win prizes! Plus you'll help the person that referred you to be one step closer to win the contest that is live at the moment!\n\n\nOur group 👉 @{channel_group.username}"
         context.bot.send_message(chat_id=update.effective_user.id,
                                  text=text,
                                  reply_markup=invitation_check_btn_markup)
@@ -63,7 +62,7 @@ def check(update, context):
     #verify membership
     status = verify_user_membership(update, context, channel_group)
     if (status == 'left'):
-        text = f"❌ First Join the channel pls.\n\n⚠️ You must join our {channel_group.type}\n\n @{channel_group.username}"
+        text = f"❌ First Join the channel please.\n\n{query.message.text}"
         context.bot.edit_message_text(chat_id=update.effective_user.id,
                                       message_id=query.message.message_id,
                                       text=text,
@@ -82,13 +81,13 @@ def check(update, context):
             #delete invitation
             delete_invitation(update.effective_user.id)
 
+        #delete the join request btn
+        context.bot.delete_message(chat_id=update.effective_user.id,
+                                   message_id=query.message.message_id)
         #sucess message
-        text = f"✅ You Successfully Join the channel.\n\n{query.message.text}"
-        context.bot.edit_message_text(chat_id=update.effective_user.id,
-                                      message_id=query.message.message_id,
-                                      text=text)
+        text = f"✅You have successfully joined the group!"
+        context.bot.send_message(chat_id=update.effective_user.id, text=text)
         #redirect to home
-        # current_active_campaign(update, context)
         home(update, context)
 
 
