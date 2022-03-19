@@ -3,8 +3,10 @@ from telegram.ext import (CommandHandler, MessageFilter, ConversationHandler,
                           MessageHandler, Filters, CallbackQueryHandler)
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, constants
 
-from model import store_participant, get_participant, get_number_invitation, get_contest
+from model import get_rank, get_total_participant, store_participant, get_participant, get_number_invitation, get_contest
 from keybords import participants_mainmenu_btn_markup
+from decorators import participant_only
+from campaign import current_active_campaign
 
 
 class FilterEmail(MessageFilter):
@@ -79,9 +81,7 @@ def show_participant(update, context):
     participant = get_participant(update.effective_user.id)
     link = f"https://t.me/{context.bot.username}?start={participant['user_id']}"
     text = f"👨‍🦱\n\n 👉Full Name: {participant['full_name']}\n👉Email: {participant['email']}\n👉Wallet: {participant['wallet_address']}\n👉Link:{link}"
-    context.bot.send_message(chat_id=update.effective_user.id,
-                             text=text,
-                             reply_markup=participants_mainmenu_btn_markup)
+    context.bot.send_message(chat_id=update.effective_user.id, text=text)
 
 
 participant_registration_conv_handler = ConversationHandler(
@@ -102,16 +102,30 @@ participant_registration_conv_handler = ConversationHandler(
     },
     fallbacks=[CommandHandler('cancel', cancel)])
 
-btn = ['🙍My Profile', '🌍Share']
+btn = ['🏠Home', 'Contests', '🙍Profile', '🌍Share']
 
 
 def main_menu(update, context):
     if (update.message.text == btn[0]):
-        my_profile(update, context)
+        home(update, context)
     if (update.message.text == btn[1]):
+        current_active_campaign(update, context)
+    if (update.message.text == btn[2]):
+        my_profile(update, context)
+    if (update.message.text == btn[3]):
         share(update, context)
 
 
+def home(update, context):
+    text = f"Hi {update.effective_user.full_name}!"
+    if (get_participant(update.effective_user.id)):
+        rank = get_rank(update.effective_user.id)
+        text = f"{text}\n\n{rank}"
+    context.bot.send_message(chat_id=update.effective_user.id,
+                             text=text,
+                             reply_markup=participants_mainmenu_btn_markup)
+
+@participant_only
 def my_profile(update, context):
     participant = get_participant(update.effective_user.id)
     number_successfull_invitations = get_number_invitation(
@@ -119,7 +133,7 @@ def my_profile(update, context):
     text = f"👤 User: {participant['full_name']}\n📧 Email: {participant['email']}\n🏦 Wallet:{participant['wallet_address']}\n👥 Total Referral: {number_successfull_invitations}"
     context.bot.send_message(chat_id=update.effective_user.id, text=text)
 
-
+@participant_only
 def share(update, context):
     participant = get_participant(update.effective_user.id)
     campaign = get_contest()

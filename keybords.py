@@ -6,15 +6,26 @@ admin_btn = [
 
 admin_btn_markup = ReplyKeyboardMarkup(admin_btn, resize_keyboard=True)
 
-campaign_btn = [
+campaign_btn_delete = [
     [
-        InlineKeyboardButton("STOP", callback_data=0),
+        InlineKeyboardButton("❌ Delete", callback_data='delete_campaign'),
     ],
 ]
-campaign_btn_markup = InlineKeyboardMarkup(campaign_btn)
+campaign_btn__delete_markup = InlineKeyboardMarkup(campaign_btn_delete)
+campaign_btn_stop = [
+    [
+        InlineKeyboardButton("⭕ Stop", callback_data='stop_campaign'),
+    ],
+]
+campaign_btn__stop_markup = InlineKeyboardMarkup(campaign_btn_stop)
 
+campaign_finished_btn = [[
+    InlineKeyboardButton('🏆Winners', callback_data='winners_campaign'),
+    InlineKeyboardButton('❌Delete', callback_data='delete_campaign'),
+]]
+campaign_finished_btn_markup = InlineKeyboardMarkup(campaign_finished_btn)
 campaign_create_btn = [[
-    InlineKeyboardButton('Create New Campaign',
+    InlineKeyboardButton('➕Create New Campaign',
                          callback_data='create_new_campaign')
 ]]
 
@@ -31,7 +42,7 @@ invitation_check_btn = [[
 
 invitation_check_btn_markup = InlineKeyboardMarkup(invitation_check_btn)
 
-participants_mainmenu_btn = [['🙍My Profile', '🌍Share']]
+participants_mainmenu_btn = [['🏠Home', 'Contests'], ['🙍Profile', '🌍Share']]
 participants_mainmenu_btn_markup = ReplyKeyboardMarkup(
     participants_mainmenu_btn, resize_keyboard=True)
 
@@ -41,4 +52,3 @@ submit_discard_btn = [[
 ]]
 
 submit_discard_btn_markup = InlineKeyboardMarkup(submit_discard_btn)
-

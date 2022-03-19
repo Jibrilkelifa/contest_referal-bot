@@ -3,6 +3,12 @@ from telegram import Update
 import config
 import logging
 
+# BOT_OWNER = 1201678719
+#TIMIZONE = CET
+
+
+
+
 # Enable logging
 log_format = logging.Formatter(
     "%(asctime)s - [%(name)s] [%(levelname)s]  %(message)s")
@@ -17,7 +23,7 @@ console_logger = logging.StreamHandler()
 console_logger.setFormatter(log_format)
 console_logger.setLevel(logging.INFO)
 logger.addHandler(console_logger)
-from campaign import update_status_campaign
+from campaign import update_status_campaign, delete_stop_discard_award_campaign_handler
 from admin import new_contest_conv_handler, admin_command_handler, campaign_btn_handler
 from start import start_command_handler
 from participants import participant_registration_conv_handler, participant_main_menu_handler
@@ -38,8 +44,8 @@ def main() -> None:
     dispatcher = updater.dispatcher
     #scheduler
     dispatcher.job_queue.run_repeating(callback=update_status_campaign,
-                                       interval=10)
-    # bot handlers
+                                       interval=30)
+    # # bot handlers
     dispatcher.add_handler(start_command_handler)
     dispatcher.add_handler(new_contest_conv_handler)
     dispatcher.add_handler(participant_registration_conv_handler)
@@ -48,6 +54,7 @@ def main() -> None:
     dispatcher.add_handler(check_callback_query_handler)
     dispatcher.add_handler(participant_main_menu_handler)
     dispatcher.add_handler(members_membership_status_handler)
+    dispatcher.add_handler(delete_stop_discard_award_campaign_handler)
 
     # dispatcher.add_handler(allmessage_handler)
 

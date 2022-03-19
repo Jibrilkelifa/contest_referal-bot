@@ -1,3 +1,4 @@
+from email import message
 from typing import Dict
 from db import contests, participants, invitations
 from constants import NOT_STARTED_YET
@@ -8,8 +9,17 @@ def store_contest(contest):
     return contests.insert(contest)
 
 
+def delete_contest():
+    return contests.delete()
+
+
 def update_contest(id, value):
     data = dict(id=id, status=value)
+    return contests.update(data, ['id'])
+
+
+def update_contest_message_id(id, value):
+    data = dict(id=id, message_id=value)
     return contests.update(data, ['id'])
 
 
@@ -52,4 +62,36 @@ def get_total_participant():
 
 
 def get_total_invitation():
-    return len(invitations)
+    return invitations.count(status=True)
+
+
+def truncate_all_tables():
+    contests.delete()
+    participants.delete()
+    invitations.delete()
+
+
+def award():
+    #zero participant
+    if (not get_total_participant()):
+        return []
+    else:
+        l = []
+        for participant in participants:
+            total_num_inv = get_number_invitation(participant['user_id'])
+            tu = (participant, total_num_inv)
+            l.append(tu)
+        l.sort(reverse=True, key=lambda x: x[1])
+        return l
+
+
+def get_rank(participant_id):
+    total_participant = get_total_participant()
+    l = []
+    for participant in participants:
+        total_num_inv = get_number_invitation(participant['user_id'])
+        tu = (participant['user_id'], total_num_inv)
+        l.append(tu)
+    l.sort(reverse=True, key=lambda x: x[1])
+    result = [l.index(i) + 1 for i in l if i[0] == participant_id][0]
+    return f"🎖️you are ranked {result}th out of {total_participant}"

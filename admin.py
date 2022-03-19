@@ -1,3 +1,4 @@
+from pickle import NONE
 import telegram
 from telegram.ext import (Filters, CommandHandler, MessageHandler,
                           ConversationHandler, CallbackQueryHandler)
@@ -5,12 +6,13 @@ from telegram.ext import (Filters, CommandHandler, MessageHandler,
 from model import store_contest
 import datetime
 import pytz
-from keybords import admin_btn_markup, admin_btn, campaign_create_btn_markup, submit_discard_btn_markup
+from keybords import admin_btn_markup, admin_btn, campaign_create_btn_markup, submit_discard_btn_markup, campaign_btn__delete_markup, campaign_btn__stop_markup, campaign_finished_btn_markup
 from decorators import bot_owner_only
 from model import get_contest
 from participants import next_field
 import config
-from campaign import campaign_detail
+from constants import NOT_STARTED_YET, STARTED, FINISHED
+from campaign import campaign_detail, update_campaign_message_id
 
 
 @bot_owner_only
@@ -25,15 +27,37 @@ admin_command_handler = CommandHandler('admin', admin)
 
 @bot_owner_only
 def campaign(update, context):
-    campaign_detail_text = campaign_detail()
+    campaign_detail_text, campaign_id, campaign_status = campaign_detail()
     if (campaign_detail_text):
         text = f"{campaign_detail_text}"
-        context.bot.send_message(chat_id=update.effective_user.id, text=text)
+        if (campaign_status == NOT_STARTED_YET):
+            btn = campaign_btn__delete_markup
+            note = "Note:\n✔️ press the Delete button to remove this one  and create new campaign"
+            resp = context.bot.send_message(chat_id=update.effective_user.id,
+                                            text=f"{text}\n\n{note}",
+                                            reply_markup=btn,
+                                            parse_mode=telegram.ParseMode.HTML)
+            update_campaign_message_id(campaign_id, resp.message_id)
+
+        if (campaign_status == FINISHED):
+            btn = campaign_finished_btn_markup
+            note = "Note:\n✔️ press the Winners button to see list of winners.\n✔️ press the Delete button to delete the campaign and related data"
+            resp = context.bot.send_message(chat_id=update.effective_user.id,
+                                            text=f"{text}\n\n{note}",
+                                            reply_markup=btn,
+                                            parse_mode=telegram.ParseMode.HTML)
+            update_campaign_message_id(campaign_id, resp.message_id)
+        if (campaign_status == STARTED):
+            context.bot.send_message(chat_id=update.effective_user.id,
+                                     text=f"{text}",
+                                     parse_mode=telegram.ParseMode.HTML)
+
     else:
         #create new campaign
-        context.bot.send_message(chat_id=update.effective_user.id,
-                                 text="NO Campaign.",
-                                 reply_markup=campaign_create_btn_markup)
+        context.bot.send_message(
+            chat_id=update.effective_user.id,
+            text="❗zero campaign. use the button below to create new one.",
+            reply_markup=campaign_create_btn_markup)
 
 
 campaign_btn_handler = MessageHandler(Filters.text(admin_btn[0]), campaign)
@@ -115,12 +139,17 @@ def submit(update, context):
     query = update.callback_query
     contest = context.user_data['new_contest']
     del context.user_data['new_contest']
-    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉StartTime:{contest['start_date_time']}\n👉EndTime:{contest['end_date_time']}"
+    # contest_detail = f"{contest['info']}\n{contest['number_winners']}\n{contest['reward']}\n{contest['start_date_time']}\n{contest['end_date_time']}"
+    contest_detail = f"{contest['info']}\n\n🏆<b>Number of winners:</b> {contest['number_winners']}\n🎁<b>Prize:</b> {contest['reward']}\n⏳<b>Start date:</b> {contest['start_date_time']} {config.TIMIZONE}\n⏳<b>End date:</b> {contest['end_date_time']} {config.TIMIZONE}"
+
     store_contest(contest)
     context.bot.edit_message_text(
         chat_id=update.effective_user.id,
         message_id=query.message.message_id,
-        text=f"✅the campaign created successfully.\n\n{contest_detail}")
+        text=
+        f"✅the campaign created successfully.Click the Campaign button for more Detail.\n\n{contest_detail}",
+        parse_mode=telegram.ParseMode.HTML)
+    campaign(update, context)
     return ConversationHandler.END
 
 
@@ -128,21 +157,23 @@ def discard(update, context):
     query = update.callback_query
     contest = context.user_data['new_contest']
     del context.user_data['new_contest']
-    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉StartTime:{contest['start_date_time']}\n👉EndTime:{contest['end_date_time']}"
+    # contest_detail = f"{contest['info']}\n{contest['number_winners']}\n{contest['reward']}\n{contest['start_date_time']}\n{contest['end_date_time']}"
+    contest_detail = f"{contest['info']}\n\n🏆<b>Number of winners:</b> {contest['number_winners']}\n🎁<b>Prize:</b> {contest['reward']}\n⏳<b>Start date:</b> {contest['start_date_time']} {config.TIMIZONE}\n⏳<b>End date:</b> {contest['end_date_time']} {config.TIMIZONE}"
     context.bot.edit_message_text(
         chat_id=update.effective_user.id,
         message_id=query.message.message_id,
-        text=f"❌you discard the campign.\n\n{contest_detail}")
+        text=f"❌you discard the campign.\n\n{contest_detail}",
+        parse_mode=telegram.ParseMode.HTML)
     return ConversationHandler.END
 
 
 def check_out_campaign(update, context):
     contest = context.user_data['new_contest']
-    contest_detail = f"👉Description:{contest['info']}\n👉Number of Winners:{contest['number_winners']}\n👉Reward:{contest['reward']}\n👉StartTime:{contest['start_date_time']}\n👉EndTime:{contest['end_date_time']}"
+    contest_detail = f"{contest['info']}\n\n🏆<b>Number of winners:</b> {contest['number_winners']}\n🎁<b>Prize:</b> {contest['reward']}\n⏳<b>Start date:</b> {contest['start_date_time']} {config.TIMIZONE}\n⏳<b>End date:</b> {contest['end_date_time']} {config.TIMIZONE}"
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=contest_detail,
-                             parse_mode=telegram.constants.PARSEMODE_HTML,
-                             reply_markup=submit_discard_btn_markup)
+                             reply_markup=submit_discard_btn_markup,
+                             parse_mode=telegram.ParseMode.HTML)
 
 
 def next_field(update, context, text):

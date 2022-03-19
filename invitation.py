@@ -1,3 +1,4 @@
+import imp
 from telegram import ReplyKeyboardMarkup
 from model import get_invitation, store_invitation, update_invitation, delete_invitation
 import config
@@ -5,6 +6,7 @@ from keybords import invitation_check_btn_markup
 from telegram.ext import CallbackQueryHandler, ChatMemberHandler
 from campaign import current_active_campaign
 from telegram import Update, Chat, ChatMember, ParseMode, ChatMemberUpdated
+from participants import home
 
 
 def extract_status_change(chat_member_update):
@@ -39,6 +41,7 @@ def create_invitation(update, context):
         'status': False
     }
     #create invitation once only
+    #new invited
     if (not get_invitation(update.effective_user.id)):
         store_invitation(invitation)
         #second send the channel/group to Join
@@ -47,6 +50,10 @@ def create_invitation(update, context):
         context.bot.send_message(chat_id=update.effective_user.id,
                                  text=text,
                                  reply_markup=invitation_check_btn_markup)
+    #already invited
+    if (get_invitation(update.effective_user.id)):
+        #redirect to home
+        home(update, context)
 
 
 def check(update, context):
@@ -61,13 +68,11 @@ def check(update, context):
                                       message_id=query.message.message_id,
                                       text=text,
                                       reply_markup=invitation_check_btn_markup)
-        # context.bot.send_message(chat_id=update.effective_user.id,
-        #                          text='❌first Join/subscribe pls.')
     if (status == 'member'):
         #update the status of the invitation
         if (rule_for_referal_point(context, update.effective_user)):
             update_invitation(invitation['inv_user_id'])
-            #send notification to the referal user
+            #send notification to the referral user
             context.bot.send_message(
                 chat_id=invitation['ref_user_id'],
                 text=
@@ -76,13 +81,15 @@ def check(update, context):
         else:
             #delete invitation
             delete_invitation(update.effective_user.id)
+
         #sucess message
-        text = f"✅ You Successfully Join the channel.\n\n⚠️ You must join our {channel_group.type}\n\n @{channel_group.username}"
+        text = f"✅ You Successfully Join the channel.\n\n{query.message.text}"
         context.bot.edit_message_text(chat_id=update.effective_user.id,
                                       message_id=query.message.message_id,
                                       text=text)
-        #current running campaign
-        current_active_campaign(update, context)
+        #redirect to home
+        # current_active_campaign(update, context)
+        home(update, context)
 
 
 check_callback_query_handler = CallbackQueryHandler(check,
@@ -124,6 +131,7 @@ members_membership_status_handler = ChatMemberHandler(
 
 
 def rule_for_referal_point(context, inv_user):
-    photos = context.bot.get_user_profile_photos(user_id=inv_user.id, limit=1)
-    username = inv_user.username
-    return photos.total_count and username
+    # photos = context.bot.get_user_profile_photos(user_id=inv_user.id, limit=1)
+    # username = inv_user.username
+    # return photos.total_count and username
+    return True
