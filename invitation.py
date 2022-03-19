@@ -62,7 +62,7 @@ def check(update, context):
     #verify membership
     status = verify_user_membership(update, context, channel_group)
     if (status == 'left'):
-        text = f"❌ First Join the channel please.\n\n{query.message.text}"
+        text = f"❌First join the group please.\n\n{query.message.text}"
         context.bot.edit_message_text(chat_id=update.effective_user.id,
                                       message_id=query.message.message_id,
                                       text=text,

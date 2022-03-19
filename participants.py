@@ -16,7 +16,7 @@ class FilterEmail(MessageFilter):
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         if (re.fullmatch(regex, message.text)):
             return True
-        message.reply_text('enter a valid email address.')
+        message.reply_text('⚠️Enter valid email address!')
         return False
 
 
