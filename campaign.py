@@ -174,7 +174,7 @@ def post_end_campaign(context):
         list_winners = l[:int(campaign_number_winner)]
         for (index, winner) in enumerate(list_winners):
             winners = winners + f"{index+1}. @{winner[0]['username']} with {winner[1]} points\n"
-        winners = f"{winners}\n\n{congra}"
+        winners = f"{winners}\n{congra}"
     else:
         winners = "⚠️ There are no participants and no winners for this campaign."
 
