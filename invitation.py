@@ -76,7 +76,7 @@ def check(update, context):
             context.bot.send_message(
                 chat_id=invitation['ref_user_id'],
                 text=
-                f"✅ {update.effective_user.full_name} has been verified as your referral.\nGood Luck"
+                f"✅{update.effective_user.full_name} has been verified as your referral!"
             )
         else:
             #delete invitation
@@ -131,7 +131,7 @@ members_membership_status_handler = ChatMemberHandler(
 
 
 def rule_for_referal_point(context, inv_user):
-    # photos = context.bot.get_user_profile_photos(user_id=inv_user.id, limit=1)
-    # username = inv_user.username
-    # return photos.total_count and username
-    return True
+    photos = context.bot.get_user_profile_photos(user_id=inv_user.id, limit=1)
+    username = inv_user.username
+    return photos.total_count and username
+    # return True

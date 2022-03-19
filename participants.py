@@ -1,9 +1,10 @@
 import re
+import telegram
 from telegram.ext import (CommandHandler, MessageFilter, ConversationHandler,
                           MessageHandler, Filters, CallbackQueryHandler)
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, constants
 
-from model import get_rank, get_total_participant, store_participant, get_participant, get_number_invitation, get_contest
+from model import get_rank, store_participant, get_participant, get_number_invitation, get_contest
 from keybords import participants_mainmenu_btn_markup
 from decorators import participant_only
 from campaign import current_active_campaign
@@ -31,16 +32,16 @@ def start_registration_participant(update, context):
         chat_id=update.effective_user.id,
         message_id=query.message.message_id,
         text=
-        "✏️You are now Registering for Campaign.\n\n to stop the process click /cancel"
+        "✏️You are now registering for referral contest campaign!\n\n🗑Stop the process of registration by clicking on 👉 /cancel"
     )
-    text = f" Your Email address:\n\nEnter pls\n\n This address will be used for future,to reach you."
+    text = f"✉️Your email address\n\nEmail address will be used to contact you in case of technical difficulties whilst sending the prize📦❌"
     next_field(update, context, text)
     return EMAIL
 
 
 def accept_email_participant(update, context):
     temporay_user_data(context, 'email', update.message.text)
-    text = f" Your wallet address:\n\nEnter pls\n\n This address will be used for future,please use the correct format"
+    text = f"💼Your wallet address\n\nWallet address will be used for sending you the prize.💵 Make sure you type it correctly!"
     next_field(update, context, text)
     return WALLET_ADDRESS
 
@@ -80,8 +81,10 @@ def temporay_user_data(context, key, value):
 def show_participant(update, context):
     participant = get_participant(update.effective_user.id)
     link = f"https://t.me/{context.bot.username}?start={participant['user_id']}"
-    text = f"👨‍🦱\n\n 👉Full Name: {participant['full_name']}\n👉Email: {participant['email']}\n👉Wallet: {participant['wallet_address']}\n👉Link:{link}"
-    context.bot.send_message(chat_id=update.effective_user.id, text=text)
+    text = f"Registration details👇\n\n👤<b>Full Name:</b> {participant['full_name']}\n✉️<b>Email:</b> {participant['email']}\n💼<b>Wallet:</b> {participant['wallet_address']}\n🔗<b>Link:</b>{link} 👈\n\nShare your unique link among friends, gain referral points when they join community, rank winning positions and receive rewards!"
+    context.bot.send_message(chat_id=update.effective_user.id,
+                             text=text,
+                             parse_mode=telegram.ParseMode.HTML)
 
 
 participant_registration_conv_handler = ConversationHandler(
@@ -125,13 +128,17 @@ def home(update, context):
                              text=text,
                              reply_markup=participants_mainmenu_btn_markup)
 
+
 @participant_only
 def my_profile(update, context):
     participant = get_participant(update.effective_user.id)
     number_successfull_invitations = get_number_invitation(
         participant['user_id'])
-    text = f"👤 User: {participant['full_name']}\n📧 Email: {participant['email']}\n🏦 Wallet:{participant['wallet_address']}\n👥 Total Referral: {number_successfull_invitations}"
-    context.bot.send_message(chat_id=update.effective_user.id, text=text)
+    text = f"👤<b>Full Name:</b> {participant['full_name']}\n✉️<b>Email:</b> {participant['email']}\n💼<b>Wallet</b>:{participant['wallet_address']}\n🗃<b>Total Referral Points:</b> {number_successfull_invitations}\n\nYou receive referral points for bringing members to the community that have set TG Username and Profile Picture."
+    context.bot.send_message(chat_id=update.effective_user.id,
+                             text=text,
+                             parse_mode=telegram.ParseMode.HTML)
+
 
 @participant_only
 def share(update, context):
@@ -146,7 +153,7 @@ def share(update, context):
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=text,
                              reply_markup=share_reply_markup,
-                             parse_mode=constants.PARSEMODE_HTML)
+                             parse_mode=telegram.ParseMode.HTML)
 
 
 participant_main_menu_handler = MessageHandler(Filters.text(btn), main_menu)

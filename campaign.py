@@ -29,7 +29,7 @@ def current_active_campaign(update, context):
     else:
         context.bot.send_message(
             chat_id=update.effective_user.id,
-            text="❗currently there is no Active campaign.",
+            text="⚠️No live referral contest campaign at the moment!",
         )
 
 
