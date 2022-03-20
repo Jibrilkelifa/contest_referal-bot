@@ -51,7 +51,7 @@ def main() -> None:
     dispatcher.add_handler(participant_registration_conv_handler)
     dispatcher.add_handler(admin_command_handler)
     dispatcher.add_handler(campaign_btn_handler)
-    dispatcher.add_handler(check_callback_query_handler)
+    # dispatcher.add_handler(check_callback_query_handler)
     dispatcher.add_handler(participant_main_menu_handler)
     dispatcher.add_handler(members_membership_status_handler)
     dispatcher.add_handler(delete_stop_discard_award_campaign_handler)

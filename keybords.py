@@ -42,7 +42,7 @@ invitation_check_btn = [[
 
 invitation_check_btn_markup = InlineKeyboardMarkup(invitation_check_btn)
 
-participants_mainmenu_btn = [['🏠Home', 'Contests'], ['🙍Profile', '🌍Share']]
+participants_mainmenu_btn = [['🏠Home'], ['🏆Contest'], ['🙍Profile'], ['🌍Share']]
 participants_mainmenu_btn_markup = ReplyKeyboardMarkup(
     participants_mainmenu_btn, resize_keyboard=True)
 

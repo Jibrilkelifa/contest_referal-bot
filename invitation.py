@@ -45,10 +45,8 @@ def create_invitation(update, context):
         store_invitation(invitation)
         #second send the channel/group to Join
         channel_group = context.bot.get_chat(config.CHANNEL_GROUP_CHAT_ID)
-        text = f"👉 Join our group and ✅Check yourself in to have the opportunity of participating in our regular referral contests and win prizes! Plus you'll help the person that referred you to be one step closer to win the contest that is live at the moment!\n\n\nOur group 👉 @{channel_group.username}"
-        context.bot.send_message(chat_id=update.effective_user.id,
-                                 text=text,
-                                 reply_markup=invitation_check_btn_markup)
+        text = f"👉 Join our microcap discussion group and make sure to solve the captcha for it to count. You will also gain an opportunity to participate in our regular referral contests and win prizes! Plus you'll help the person that referred you to be one step closer to win the event that is live at the moment!\n\nOur group 👉 @{channel_group.username}"
+        context.bot.send_message(chat_id=update.effective_user.id, text=text)
     #already invited
     if (get_invitation(update.effective_user.id)):
         #redirect to home
@@ -62,7 +60,7 @@ def check(update, context):
     #verify membership
     status = verify_user_membership(update, context, channel_group)
     if (status == 'left'):
-        text = f"❌First join the group please.\n\n{query.message.text}"
+        text = f"❌First join the group please\n\n{query.message.text}"
         context.bot.edit_message_text(chat_id=update.effective_user.id,
                                       message_id=query.message.message_id,
                                       text=text,
@@ -88,7 +86,7 @@ def check(update, context):
         text = f"✅You have successfully joined the group!"
         context.bot.send_message(chat_id=update.effective_user.id, text=text)
         #redirect to home
-        home(update, context)
+        # home(update, context)
 
 
 check_callback_query_handler = CallbackQueryHandler(check,
@@ -103,12 +101,35 @@ def verify_user_membership(update, context, channel_group):
 
 def members_membership_status(update, context):
     result = extract_status_change(update.chat_member)
+    member = update.chat_member.new_chat_member.user
+    invitation = get_invitation(member.id)
     if result is None:
         return
-    was_member, is_member = result
-    if (was_member and not is_member):
-        #delete the invitation
-        delete_invitation(update.chat_member.new_chat_member.user.id)
+    if (invitation):
+        was_member, is_member = result
+        if (was_member and not is_member):
+            #delete the invitation
+            delete_invitation(update.chat_member.new_chat_member.user.id)
+            context.bot.send_message(
+                chat_id=invitation['ref_user_id'],
+                text=f"❌{member.full_name} can't solve the captcha!")
+        if (not was_member and is_member):
+            #update the status of the invitation
+            if (rule_for_referal_point(context, member)):
+                update_invitation(member.id)
+                #send notification to the referral user
+                context.bot.send_message(
+                    chat_id=invitation['ref_user_id'],
+                    text=
+                    f"✅{update.effective_user.full_name} has been verified as your referral!"
+                )
+                #sucess message
+                text = f"✅You have successfully joined the group!"
+                context.bot.send_message(chat_id=update.effective_user.id,
+                                         text=text)
+            else:
+                #delete invitation
+                delete_invitation(update.effective_user.id)
 
     # cause_name = update.chat_member.from_user.mention_html()
     # member_name = update.chat_member.new_chat_member.user.mention_html()

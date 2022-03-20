@@ -133,11 +133,11 @@ def winners_campaign(update, context):
 
     l = award()
     if (l):
-        winners = "Username\t\tEmail Address\t\tWallet\n"
+        winners = "Username\t\t\t\tWallet\n"
         campaign_number_winner = contest['number_winners']
         list_winners = l[:int(campaign_number_winner)]
         for (index, winner) in enumerate(list_winners):
-            winners = winners + f"<b>{index+1}</b>@{winner[0]['username']}\t\t{winner[0]['email']}\t\t{winner[0]['wallet_address']}\n"
+            winners = winners + f"<b>{index+1}</b>@{winner[0]['username']}\t\t\t\t{winner[0]['wallet_address']}\n"
         winners = f"{winners}"
     else:
         winners = "⚠️ There are no participants and no winners for this campaign."
@@ -203,11 +203,11 @@ def send_end_campaign_notification_admin(context):
 
     l = award()
     if (l):
-        winners = "Username\t\tEmail Address\t\tWallet\n"
+        winners = "Username\t\t\t\tWallet\n"
         campaign_number_winner = contest['number_winners']
         list_winners = l[:int(campaign_number_winner)]
         for (index, winner) in enumerate(list_winners):
-            winners = winners + f"{index+1}.@{winner[0]['username']}\t\t{winner[0]['email']}\t\t{winner[0]['wallet_address']}\n"
+            winners = winners + f"{index+1}.@{winner[0]['username']}\t\t\t\t{winner[0]['wallet_address']}\n"
         winners = f"{winners}"
     else:
         winners = "⚠️ There are no participants and no winners for this campaign."
