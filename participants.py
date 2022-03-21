@@ -34,7 +34,7 @@ def start_registration_participant(update, context):
         text=
         "✏️You are now registering for referral contest campaign!\n\n🗑Stop the process of registration by clicking on 👉 /cancel"
     )
-    text = f"💼Enter your wallet address\n\nWallet address will be used for sending you the prize.💵 Make sure you type it correctly!"
+    text = f"💼Enter your BUSD (BEP20) address\n\nWallet address will be used for sending you the prize.💵 Make sure you type it correctly!"
     next_field(update, context, text)
     return WALLET_ADDRESS
 
@@ -81,7 +81,7 @@ def temporay_user_data(context, key, value):
 def show_participant(update, context):
     participant = get_participant(update.effective_user.id)
     link = f"https://t.me/{context.bot.username}?start={participant['user_id']}"
-    text = f"Registration details👇\n\n👤<b>Full Name:</b> {participant['full_name']}\n💼<b>Wallet:</b> {participant['wallet_address']}\n🔗<b>Link:</b> {link} 👈\n\nShare your unique link among friends, gain referral points when they join community, rank winning positions and receive rewards!"
+    text = f"Registration details👇\n\n👤<b>Full Name:</b> {participant['full_name']}\n💼<b>Wallet:</b> {participant['wallet_address']}\n🔗<b>Link:</b> {link} 👈\n\nShare your unique link among friends, gain referral points when they join community, rank winning positions and receive rewards!\n\n🚨Any type of manipulation, bot spamming, or inviting those who are not actively involved in crypto markets is prohibited. Invitees will be inspected regularly, and those caught breaking this rule will be banned permanently from the community!Also note that an invitee will only count as a point for the corresponding campaign, and never for the subsequent ones, so do not try leaving/rejoining the group for that reason."
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=text,
                              parse_mode=telegram.ParseMode.HTML)
@@ -129,7 +129,7 @@ def my_profile(update, context):
     participant = get_participant(update.effective_user.id)
     number_successfull_invitations = get_number_invitation(
         participant['user_id'])
-    text = f"👤<b>Full Name:</b> {participant['full_name']}\n💼<b>Wallet</b>: {participant['wallet_address']}\n🗃<b>Total Referral Points:</b> {number_successfull_invitations}\n\nYou receive referral points for bringing members to the community that have set TG Username and Profile Picture."
+    text = f"👤<b>Full Name:</b> {participant['full_name']}\n💼<b>Wallet</b>: {participant['wallet_address']}\n🗃<b>Total Referral Points:</b> {number_successfull_invitations}\n\nYou receive referral points for bringing members to the community that have set TG Username and Profile Picture.\n\n🚨Any type of manipulation, bot spamming, or inviting those who are not actively involved in crypto markets is prohibited. Invitees will be inspected regularly, and those caught breaking this rule will be banned permanently from the community! Also note that an invitee will only count as a point for the corresponding campaign, and never for the subsequent ones, so do not try leaving/rejoining the group for that reason."
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=text,
                              parse_mode=telegram.ParseMode.HTML)
@@ -144,7 +144,7 @@ def share(update, context):
     url = get_share_link(context, participant)
     share_reply_markup = InlineKeyboardMarkup(
         [[InlineKeyboardButton('👋 Share Link', url=url)]])
-    text = f"Play your part in growing the community and win {campaign['reward']} 👈\n\n🗃<b>Total Referral Points:</b> {number_successfull_invitations}\n\n⚠️Participating with fake, empty and spam accounts or any other type of bot-like action will result in permanent ban from the community!\n\nYour unique referral link ⤵️"
+    text = f"Play your part in growing the community and win {campaign['reward']} 👈\n\n🗃<b>Total Referral Points:</b> {number_successfull_invitations}\n\n🚨Any type of manipulation, bot spamming, or inviting those who are not actively involved in crypto markets is prohibited. Invitees will be inspected regularly, and those caught breaking this rule will be banned permanently from the community! Also note that an invitee will only count as a point for the corresponding campaign, and never for the subsequent ones, so do not try leaving/rejoining the group for that reason.\n\nYour unique referral link ⤵️"
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=text,
                              reply_markup=share_reply_markup,
