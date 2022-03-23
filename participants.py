@@ -9,7 +9,6 @@ from keybords import participants_mainmenu_btn_markup
 from decorators import participant_only
 from campaign import current_active_campaign
 
-
 class FilterEmail(MessageFilter):
 
     def filter(self, message):
@@ -81,7 +80,7 @@ def temporay_user_data(context, key, value):
 def show_participant(update, context):
     participant = get_participant(update.effective_user.id)
     link = f"https://t.me/{context.bot.username}?start={participant['user_id']}"
-    text = f"Registration details👇\n\n👤<b>Full Name:</b> {participant['full_name']}\n💼<b>Wallet:</b> {participant['wallet_address']}\n🔗<b>Link:</b> {link} 👈\n\nShare your unique link among friends, gain referral points when they join community, rank winning positions and receive rewards!\n\n🚨Any type of manipulation, bot spamming, or inviting those who are not actively involved in crypto markets is prohibited. Invitees will be inspected regularly, and those caught breaking this rule will be banned permanently from the community!Also note that an invitee will only count as a point for the corresponding campaign, and never for the subsequent ones, so do not try leaving/rejoining the group for that reason."
+    text = f"Registration details👇\n\n👤<b>Full Name:</b> {participant['full_name']}\n💼<b>Wallet:</b> {participant['wallet_address']}\n🔗<b>Link:</b> {link} 👈\n\nShare your unique link among friends who are actively involved trading crypto and gain referral points when they join the community. Achieve the winning positions to receive rewards!\n\nPlease note that it is required for the invitee to have a username and a profile picture.\n\n🚨Any type of manipulation, bot spamming, or inviting those who are not actively involved in crypto markets is prohibited. Invitees will be inspected regularly, and those caught breaking this rule will be banned permanently from the community! Also note that an invitee will only count as a point for the corresponding campaign, and never for the subsequent ones, so do not try leaving/rejoining the group for that reason."
     context.bot.send_message(chat_id=update.effective_user.id,
                              text=text,
                              parse_mode=telegram.ParseMode.HTML)

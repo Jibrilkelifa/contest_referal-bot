@@ -11,6 +11,7 @@ import pytz
 from constants import FINISHED, STARTED, NOT_STARTED_YET
 from telegram.ext import (CallbackQueryHandler)
 from constants import STARTED, NOT_STARTED_YET, FINISHED
+from telegram.utils.helpers import create_deep_linked_url
 
 
 def current_active_campaign(update, context):
@@ -117,27 +118,17 @@ def delete_campaign(update, context):
                                       text=text)
 
 
-def stop_campaign(update, context):
-    query = update.callback_query
-    contest = get_contest()
-    update_contest(contest['id'], FINISHED)
-    text = f"⭕the campaign is stoped successfully.for more options use the campaign button.\n\n{query.message.text}"
-    context.bot.edit_message_text(chat_id=update.effective_user.id,
-                                  message_id=query.message.message_id,
-                                  text=text)
-
-
 def winners_campaign(update, context):
     contest = get_contest()
-    header = "<b>📢 List of Winners for the campaign! 📢</b>"
+    header = "<b>📢 List of Winners for the campaign! 📢</b>\n\nuse /invited username 👈to get list of invited user by referral user."
 
     l = award()
     if (l):
-        winners = "Username\t\t\t\tWallet\n"
+        winners = "Username\t\t\t\t\t\t\tWallet\t\t\t\t\tnumber_invited\n"
         campaign_number_winner = contest['number_winners']
         list_winners = l[:int(campaign_number_winner)]
         for (index, winner) in enumerate(list_winners):
-            winners = winners + f"<b>{index+1}</b>@{winner[0]['username']}\t\t\t\t{winner[0]['wallet_address']}\n"
+            winners = winners + f"{index+1}. @{winner[0]['username']}\t\t\t\t{winner[0]['wallet_address']}\t\t\t\t{winner[1]}\n"
         winners = f"{winners}"
     else:
         winners = "⚠️ There are no participants and no winners for this campaign."
@@ -159,7 +150,7 @@ def discard_campaign(update, context):
 
 delete_stop_discard_award_campaign_handler = CallbackQueryHandler(
     delete_stop_discard_award_campaign,
-    pattern='delete_campaign|stop_campaign|winners_campaign|discard_campaign')
+    pattern='delete_campaign|winners_campaign')
 
 
 def post_end_campaign(context):
@@ -212,7 +203,6 @@ def send_end_campaign_notification_admin(context):
     else:
         winners = "⚠️ There are no participants and no winners for this campaign."
 
-    # note = f"For participating in future referral contest campaigns address to @{context.bot.username} 👈"
     text = f"{header}\n\n{winners}"
     context.bot.send_message(chat_id=config.BOT_OWNER,
                              text=text,

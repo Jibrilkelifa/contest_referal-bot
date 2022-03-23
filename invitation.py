@@ -1,5 +1,5 @@
 from telegram import ReplyKeyboardMarkup
-from model import get_invitation, store_invitation, update_invitation, delete_invitation
+from model import get_invitation, store_invitation, store_new_member, update_invitation, delete_invitation, get_member
 import config
 from keybords import invitation_check_btn_markup
 from telegram.ext import CallbackQueryHandler, ChatMemberHandler
@@ -53,52 +53,6 @@ def create_invitation(update, context):
         home(update, context)
 
 
-def check(update, context):
-    query = update.callback_query
-    channel_group = context.bot.get_chat(config.CHANNEL_GROUP_CHAT_ID)
-    invitation = get_invitation(update.effective_user.id)
-    #verify membership
-    status = verify_user_membership(update, context, channel_group)
-    if (status == 'left'):
-        text = f"❌First join the group please\n\n{query.message.text}"
-        context.bot.edit_message_text(chat_id=update.effective_user.id,
-                                      message_id=query.message.message_id,
-                                      text=text,
-                                      reply_markup=invitation_check_btn_markup)
-    if (status == 'member'):
-        #update the status of the invitation
-        if (rule_for_referal_point(context, update.effective_user)):
-            update_invitation(invitation['inv_user_id'])
-            #send notification to the referral user
-            context.bot.send_message(
-                chat_id=invitation['ref_user_id'],
-                text=
-                f"✅{update.effective_user.full_name} has been verified as your referral!"
-            )
-        else:
-            #delete invitation
-            delete_invitation(update.effective_user.id)
-
-        #delete the join request btn
-        context.bot.delete_message(chat_id=update.effective_user.id,
-                                   message_id=query.message.message_id)
-        #sucess message
-        text = f"✅You have successfully joined the group!"
-        context.bot.send_message(chat_id=update.effective_user.id, text=text)
-        #redirect to home
-        # home(update, context)
-
-
-check_callback_query_handler = CallbackQueryHandler(check,
-                                                    pattern='check_joining')
-
-
-def verify_user_membership(update, context, channel_group):
-    member = context.bot.get_chat_member(chat_id=channel_group.id,
-                                         user_id=update.effective_user.id)
-    return member.status
-
-
 def members_membership_status(update, context):
     result = extract_status_change(update.chat_member)
     member = update.chat_member.new_chat_member.user
@@ -110,40 +64,53 @@ def members_membership_status(update, context):
         if (was_member and not is_member):
             #delete the invitation
             delete_invitation(update.chat_member.new_chat_member.user.id)
-            context.bot.send_message(
-                chat_id=invitation['ref_user_id'],
-                text=f"❌{member.full_name} can't solve the captcha!")
-        if (not was_member and is_member):
-            #update the status of the invitation
-            if (rule_for_referal_point(context, member)):
-                update_invitation(member.id)
-                #send notification to the referral user
+            cause_member = update.chat_member.from_user
+            # cause_member {'is_bot': False, 'last_name': 'Yesuf', 'first_name': 'Siraj', 'username': 'sirajyesuf2', 'language_code': 'en', 'id': 2079061914}
+            # cause_member {'id': 660783114, 'is_bot': True, 'first_name': 'The Join Captcha Bot', 'username': 'join_captcha_bot'}
+            # print("cause_member", cause_member)
+            if (cause_member.is_bot):
                 context.bot.send_message(
                     chat_id=invitation['ref_user_id'],
-                    text=
-                    f"✅{update.effective_user.full_name} has been verified as your referral!"
-                )
-                #sucess message
-                text = f"✅You have successfully joined the group!"
-                context.bot.send_message(chat_id=update.effective_user.id,
-                                         text=text)
+                    text=f"❌{member.full_name} can't solve the captcha!")
+            else:
+                context.bot.send_message(
+                    chat_id=invitation['ref_user_id'],
+                    text=f"❌{member.full_name} left the group!")
+
+        if (not was_member and is_member):
+            #is member in the past
+            if (not is_old_member(member)):
+                #update the status of the invitation
+                if (rule_for_referal_point(context, member)):
+                    #update the invitation status to true
+                    update_invitation(member.id)
+                    #store the user as new member
+                    store_new_member({'user_id': member.id})
+
+                    #send notification to the referral user
+                    context.bot.send_message(
+                        chat_id=invitation['ref_user_id'],
+                        text=
+                        f"✅{update.effective_user.full_name} has been verified as your referral!"
+                    )
+                    #sucess message
+                    text = f"✅You have successfully joined the group!"
+                    context.bot.send_message(chat_id=update.effective_user.id,
+                                             text=text)
+                else:
+                    #delete invitation
+                    delete_invitation(update.effective_user.id)
+                    #store the user as new member
+                    store_new_member({'user_id': member.id})
             else:
                 #delete invitation
                 delete_invitation(update.effective_user.id)
-
-    # cause_name = update.chat_member.from_user.mention_html()
-    # member_name = update.chat_member.new_chat_member.user.mention_html()
-
-    # if not was_member and is_member:
-    #     update.effective_chat.send_message(
-    #         f"{member_name} was added by {cause_name}. Welcome!",
-    #         parse_mode=ParseMode.HTML,
-    #     )
-    # elif was_member and not is_member:
-    #     update.effective_chat.send_message(
-    #         f"{member_name} is no longer with us. Thanks a lot, {cause_name} ...",
-    #         parse_mode=ParseMode.HTML,
-    #     )
+                #send notification to the referre
+                context.bot.send_message(
+                    chat_id=invitation['ref_user_id'],
+                    text=
+                    f"❌{update.effective_user.full_name} has already joined the group in the past!"
+                )
 
 
 members_membership_status_handler = ChatMemberHandler(
@@ -155,3 +122,7 @@ def rule_for_referal_point(context, inv_user):
     username = inv_user.username
     return photos.total_count and username
     # return True
+
+
+def is_old_member(inv_user):
+    return get_member(inv_user.id)

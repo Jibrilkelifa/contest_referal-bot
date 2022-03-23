@@ -1,6 +1,4 @@
-from email import message
-from typing import Dict
-from db import contests, participants, invitations
+from db import contests, participants, invitations, members
 from constants import NOT_STARTED_YET
 
 
@@ -36,7 +34,11 @@ def get_participant(user_id):
     return participants.find_one(user_id=user_id)
 
 
-def store_invitation(invitation: Dict):
+def get_participant_by_username(username):
+    return participants.find_one(username=username)
+
+
+def store_invitation(invitation):
     return invitations.insert(invitation)
 
 
@@ -51,6 +53,10 @@ def update_invitation(inv_user_id):
 
 def get_number_invitation(ref_user_id):
     return invitations.count(ref_user_id=ref_user_id, status=True)
+
+
+def get_list_invited_by_referre(ref_user_id):
+    return invitations.find(ref_user_id=ref_user_id)
 
 
 def delete_invitation(inv_user_id):
@@ -95,3 +101,11 @@ def get_rank(participant_id):
     l.sort(reverse=True, key=lambda x: x[1])
     result = [l.index(i) + 1 for i in l if i[0] == participant_id][0]
     return f"📊You rank {result} out of {total_participant} participant(s)"
+
+
+def store_new_member(member):
+    return members.insert(member)
+
+
+def get_member(user_id):
+    return members.find_one(user_id=user_id)

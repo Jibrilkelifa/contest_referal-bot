@@ -3,11 +3,12 @@ from telegram import Update
 import config
 import logging
 
-# BOT_OWNER = 1201678719
-#TIMIZONE = CET
-
-
-
+#production
+# BOT_TOKEN =5232005128:AAHm6hVCvE33LJsCWUYKDv2FgvPSNfzJjxY
+# CHANNEL_GROUP_CHAT_ID =-1001684228414
+# DATETIME_FORMAT = %d/%m/%Y %H:%M
+# BOT_OWNER = 5237382660
+# TIMIZONE = CET
 
 # Enable logging
 log_format = logging.Formatter(
@@ -24,10 +25,10 @@ console_logger.setFormatter(log_format)
 console_logger.setLevel(logging.INFO)
 logger.addHandler(console_logger)
 from campaign import update_status_campaign, delete_stop_discard_award_campaign_handler
-from admin import new_contest_conv_handler, admin_command_handler, campaign_btn_handler
+from admin import new_contest_conv_handler, admin_command_handler, campaign_btn_handler, get_list_invited_member_command_handler
 from start import start_command_handler
 from participants import participant_registration_conv_handler, participant_main_menu_handler
-from invitation import check_callback_query_handler, members_membership_status_handler
+from invitation import members_membership_status_handler
 
 
 def error_handler(update, context):
@@ -51,10 +52,10 @@ def main() -> None:
     dispatcher.add_handler(participant_registration_conv_handler)
     dispatcher.add_handler(admin_command_handler)
     dispatcher.add_handler(campaign_btn_handler)
-    # dispatcher.add_handler(check_callback_query_handler)
     dispatcher.add_handler(participant_main_menu_handler)
     dispatcher.add_handler(members_membership_status_handler)
     dispatcher.add_handler(delete_stop_discard_award_campaign_handler)
+    dispatcher.add_handler(get_list_invited_member_command_handler)
 
     # dispatcher.add_handler(allmessage_handler)
 

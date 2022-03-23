@@ -14,14 +14,5 @@ def start(update, context):
     else:
         home(update, context)
 
-    # if (get_participant(update.effective_user.id)):
-    #     context.bot.send_message(chat_id=update.effective_user.id,
-    #                              text='Hello, 👋 Welcome back.!')
-    # else:
-    #     context.bot.send_message(chat_id=update.effective_user.id,
-    #                              text='Hello, 👋 Welcome back.!',
-    #                              reply_markup=ReplyKeyboardRemove())
-    #     current_active_campaign(update, context)
-
 
 start_command_handler = CommandHandler('start', start)

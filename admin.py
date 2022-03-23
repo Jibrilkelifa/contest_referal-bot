@@ -1,4 +1,3 @@
-from pickle import NONE
 import telegram
 from telegram.ext import (Filters, CommandHandler, MessageHandler,
                           ConversationHandler, CallbackQueryHandler)
@@ -8,7 +7,7 @@ import datetime
 import pytz
 from keybords import admin_btn_markup, admin_btn, campaign_create_btn_markup, submit_discard_btn_markup, campaign_btn__delete_markup, campaign_btn__stop_markup, campaign_finished_btn_markup
 from decorators import bot_owner_only
-from model import get_contest
+from model import get_contest, get_participant_by_username, get_list_invited_by_referre
 from participants import next_field
 import config
 from constants import NOT_STARTED_YET, STARTED, FINISHED
@@ -220,3 +219,31 @@ new_contest_conv_handler = ConversationHandler(
         ]
     },
     fallbacks=[CommandHandler('cancel', cancel)])
+
+
+#get list of members of invited member by specific referre
+@bot_owner_only
+def get_list_invited_member(update, context):
+    try:
+        participant = get_participant_by_username(
+            update.message.text.split(" ")[1])
+        l = []
+        for inv in get_list_invited_by_referre(participant['user_id']):
+            user = context.bot.get_chat(chat_id=inv['inv_user_id'])
+            l.append(user.username)
+        text = f"☑️list of invited members by @{participant['username']}\n\n"
+        if (l):
+            for inv in l:
+                text = text + f"@{inv}\n"
+            context.bot.send_message(chat_id=config.BOT_OWNER, text=text)
+        else:
+            context.bot.send_message(chat_id=config.BOT_OWNER,
+                                     text=text + '❗zero invited users.')
+    except (IndexError,TypeError) as e:
+        context.bot.send_message(
+            chat_id=config.BOT_OWNER,
+            text='❌ please only use one space b/n the command and the username')
+
+
+get_list_invited_member_command_handler = CommandHandler(
+    'invited', get_list_invited_member)
